@@ -1,0 +1,30 @@
+package nebula.test
+
+import spock.lang.Ignore
+
+class DeprecationCheckIntegrationSpec extends IntegrationSpec {
+    @Ignore
+    def 'deprecation warnings cause test to fail'() {
+        given:
+        buildFile << """
+            apply plugin: 'java'
+            
+            repositories {
+                mavenCentral()
+            }
+            
+            dependencies {
+                implementation('com.google.guava:guava:19.0') {
+                    force = true
+                }
+            }
+        """
+
+        when:
+        runTasks('help')
+
+        then:
+        def e = thrown(IllegalArgumentException)
+        e.message.startsWith('Deprecation warnings were found (Set the ignoreDeprecations system property during the test to ignore)')
+    }
+}
